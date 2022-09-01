@@ -1,0 +1,58 @@
+@tailwind base;
+
+hr {
+  margin-bottom: 1rem;
+  border-color: #343a4066;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #007bff;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+ul {
+  list-style-type: disc;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+.markdown-body img {
+  margin-bottom: 1rem;
+  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.markdown-body .youtube-player {
+  width: 100%;
+}
+
+.markdown-body blockquote,
+.markdown-body details,
+.markdown-body dl,
+.markdown-body ol,
+.markdown-body p,
+.markdown-body pre,
+.markdown-body table,
+.markdown-body ul {
+  max-width: 65ch;
+}
+
+pre {
+  overflow: visible !important;
+  border: none !important;
+}
+
+@tailwind components;
+
+@tailwind utilities;
+
+.grecaptcha-badge { visibility: hidden; }
