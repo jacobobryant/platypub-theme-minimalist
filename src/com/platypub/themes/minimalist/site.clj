@@ -46,7 +46,7 @@
 
 (defn subscribe-form [{:keys [account site]}]
   [:div.border-t.pt-3.pb-5
-   [:div (:subscribe-description site "Subscribe to my newsletter:")]
+   [:div (:newsletter-description site)]
    [:div.h-2]
    [:script (raw-string "function onSubscribe(token) { document.getElementById('recaptcha-form').submit(); }")]
    [:form#recaptcha-form.mb-0
@@ -59,7 +59,7 @@
              :name "referrer"
              :_ "on load set my value to document.referrer"}]
 
-    [:div.sm:flex.items-end.w-full.max-w-lg
+    [:div.sm:flex.items-end.w-full
      [:input.w-full.flex-grow
       {:name "email"
        :type "email"
@@ -99,11 +99,11 @@
                 "') remove .hidden from me")}
        explanation])]])
 
-(defn base-page [{:keys [site page account] :as opts} & contents]
+(defn base-page [{:keys [site post page account] :as opts} & contents]
   (common/base-html
    (assoc opts :base/head (list
                            [:link {:rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css"}]
-                           [:link {:rel "stylesheet" :href "https://hub.findka.com/css/vs.css"}] ; todo
+                           [:link {:rel "stylesheet" :href "/css/vs.css"}]
                            [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"
                                      :defer "defer"}]
                            [:script {:src (str "https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/"
@@ -115,8 +115,10 @@
    [:div.container.p-3.mx-auto.markdown-body.max-w-prose
     (navbar opts)
     contents
-    [:div.h-8]
-    (subscribe-form opts)]))
+    (when-not (some #((:tags % #{}) "nosubscribe") [post page])
+      (list
+       [:div.h-8]
+       (subscribe-form opts)))]))
 
 (defn render-page [{:keys [page] :as opts}]
   (base-page opts (raw-string (:html page))))
@@ -172,15 +174,25 @@
        (run! #(io/copy % (doto (io/file "public" (subs (.getPath %) (count "assets/"))) io/make-parents)))))
 
 (defn -main []
-  (let [opts (common/derive-opts (edn/read-string (slurp "input.edn")))]
+  (let [opts (-> (common/derive-opts (edn/read-string (slurp "input.edn")))
+                 (update :posts (fn [posts]
+                                  (remove #((:tags %) "hidden") posts))))
+        sitemap-exclude (->> (:posts opts)
+                             (filter #((:tags %) "unlisted"))
+                             (map (fn [post]
+                                    (re-pattern (str "/p/" (:slug post) "/")))))]
     (common/redirects! opts)
     (common/netlify-subscribe-fn! opts)
     (common/pages! opts render-page pages)
     (common/posts! opts render-post)
     (common/atom-feed! opts)
-    (common/sitemap! {:exclude [#"/subscribed/"]})
+    (common/sitemap! {:exclude (concat [#"/subscribed/"]
+                                       sitemap-exclude)})
     (assets!)
     (when (fs/exists? "main.css")
       (io/make-parents "public/css/_")
-      (common/safe-copy "main.css" "public/css/main.css")))
+      (common/safe-copy "main.css" "public/css/main.css"))
+    (fs/copy-tree (io/file (io/resource "com/platypub/themes/minimalist/public"))
+                  "public"
+                  {:replace-existing true}))
   nil)
