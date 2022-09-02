@@ -12,6 +12,7 @@
    :com.platypub.site/redirects
    :com.platypub.site/author-name
    :com.platypub.site/author-url
+   :com.platypub.site/author-image
    :com.platypub.site/embed-html
    :com.platypub.site/nav-links
    :com.platypub.themes.minimalist.site/newsletter-description])
