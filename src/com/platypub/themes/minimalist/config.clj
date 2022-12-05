@@ -10,6 +10,8 @@
   [:com.platypub.site/description
    :com.platypub.site/image
    :com.platypub.site/redirects
+   :com.platypub.site/primary-color
+   :com.platypub.site/accent-color
    :com.platypub.site/author-name
    :com.platypub.site/author-url
    :com.platypub.site/author-image
